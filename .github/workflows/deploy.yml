@@ -39,7 +39,7 @@ jobs:
         id: determine-pr-status
         if: always()
         run: |
-          if [${{ success() }}]
+          if [${{ job.status }} == "success"]
           then
             echo "::set-output name=state::success"
             echo "::set-output name=description::The deploy succeeded"
