@@ -8,20 +8,15 @@ jobs:
     runs-on: ubuntu-18.04
     name: "Deploy"
     steps:
-      - name: Debug
-        run: |
-          echo "GITHUB_REF = '"{{ env.GITHUB_REF }}"'"
       - name: Find pull request number for branch
         uses: juliangruber/find-pull-request-action@v1
         id: find-pull-request
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ env.GITHUB_REF }}
-      - name: Debug output
-        run: |
-          echo "PR number = '"{{ steps.find-pull-request.outputs.number }}"'"
+          branch: ${{ github.ref }}
       - name: Set PR Status to pending
         uses: niteoweb/pull_request_status_action@v1.0.0
+        if: ${{ steps.find-pull-request.outputs.number != '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -30,8 +25,32 @@ jobs:
           target_url: https://pansino.net
           context: deploy
           pr_number: ${{ steps.find-pull-request.outputs.number }}
-          repository: ${{ env.GITHUB_REPOSITORY }}
+          repository: ${{ github.repository }}
       - name: "Checkout"
         uses: actions/checkout@v2
         with: 
           ref: ${{ github.sha }}
+      - name: Prepare final PR status
+        id: determine-pr-status
+        if: ${{ always() && steps.find-pull-request.outputs.number != '' }}
+        run: |
+          if [ ${{ job.status }} == "success" ]
+          then
+            echo "::set-output name=state::success"
+            echo "::set-output name=description::The deploy succeeded"
+          else
+            echo "::set-output name=state::failure"
+            echo "::set-output name=description::The deploy failed"
+          fi
+      - name: Set final PR Status
+        uses: niteoweb/pull_request_status_action@v1.0.0
+        if: ${{ always() && steps.find-pull-request.outputs.number != '' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          state: ${{ steps.determine-pr-status.outputs.state }}
+          description: ${{ steps.determine-pr-status.outputs.description }}
+          target_url: https://pansino.net
+          context: deploy
+          pr_number: ${{ steps.find-pull-request.outputs.number }}
+          repository: ${{ github.repository }}
