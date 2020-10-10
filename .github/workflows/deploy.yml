@@ -4,22 +4,24 @@ on:
   workflow_dispatch:
 
 jobs:
-  upload-confluence:
+  deploy:
     runs-on: ubuntu-18.04
     name: "Deploy"
     steps:
       - name: Find pull request number for branch
         uses: juliangruber/find-pull-request-action@v1
         id: find-pull-request
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ env.GITHUB_REF }}
       - name: Set PR Status to pending
         uses: niteoweb/pull_request_status_action@v1.0.0
-        #env:
-        #  # Default Github Token
-        #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           state: pending
           description: "An example description"
-          target_url: https://github.com/OpenSesame/policy-docs/pull/17/checks?check_run_id=${{ env.GITHUB_RUN_ID }}
+          target_url: https://pansino.net
           context: deploy
           pr_number: ${{ steps.find-pull-request.outputs.number }}
           repository: ${{ env.GITHUB_REPOSITORY }}
