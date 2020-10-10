@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: Debug
         run: |
-          echo "GITHUB_REF = '$GITHUB_REF'"
+          env
       - name: Find pull request number for branch
         uses: juliangruber/find-pull-request-action@v1
         id: find-pull-request
