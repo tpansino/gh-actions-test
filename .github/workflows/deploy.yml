@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: Debug
         run: |
-          echo "GITHUB_REF = '"{{ env.GITHUB_REF }}"'"
+          echo "GITHUB_REF = '"${{ env.GITHUB_REF }}"'"
       - name: Find pull request number for branch
         uses: juliangruber/find-pull-request-action@v1
         id: find-pull-request
@@ -19,7 +19,7 @@ jobs:
           branch: ${{ env.GITHUB_REF }}
       - name: Debug output
         run: |
-          echo "PR number = '"{{ steps.find-pull-request.outputs.number }}"'"
+          echo "PR number = '"${{ steps.find-pull-request.outputs.number }}"'"
       - name: Set PR Status to pending
         uses: niteoweb/pull_request_status_action@v1.0.0
         env:
