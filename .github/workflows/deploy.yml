@@ -17,11 +17,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.ref }}
-      - name: Debug output
-        run: |
-          echo "PR number = '"${{ steps.find-pull-request.outputs.number }}"'"
       - name: Set PR Status to pending
         uses: niteoweb/pull_request_status_action@v1.0.0
+        if: ${{ steps.find-pull-request.outputs.number != "" }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -37,7 +35,7 @@ jobs:
           ref: ${{ github.sha }}
       - name: Determine PR status
         id: determine-pr-status
-        if: always()
+        if: ${{ always() && steps.find-pull-request.outputs.number != "" }}
         run: |
           if [ ${{ job.status }} == "success" ]
           then
@@ -49,7 +47,7 @@ jobs:
           fi
       - name: Set PR Status
         uses: niteoweb/pull_request_status_action@v1.0.0
-        if: always()
+        if: ${{ always() && steps.find-pull-request.outputs.number != "" }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
