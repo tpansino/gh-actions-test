@@ -35,3 +35,23 @@ jobs:
         uses: actions/checkout@v2
         with: 
           ref: ${{ github.sha }}
+      - name: Set PR Status
+        uses: niteoweb/pull_request_status_action@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: success()
+        with:
+          state: success
+          description: "A successful description"
+          target_url: https://pansino.net
+          context: deploy
+          pr_number: ${{ steps.find-pull-request.outputs.number }}
+          repository: ${{ github.repository }}
+        if: failure()
+        with:
+          state: failure
+          description: "A failed description"
+          target_url: https://pansino.net
+          context: deploy
+          pr_number: ${{ steps.find-pull-request.outputs.number }}
+          repository: ${{ github.repository }}
