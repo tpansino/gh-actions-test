@@ -16,7 +16,7 @@ jobs:
         id: find-pull-request
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ env.GITHUB_REF }}
+          branch: ${{ github.ref }}
       - name: Debug output
         run: |
           echo "PR number = '"${{ steps.find-pull-request.outputs.number }}"'"
@@ -30,7 +30,7 @@ jobs:
           target_url: https://pansino.net
           context: deploy
           pr_number: ${{ steps.find-pull-request.outputs.number }}
-          repository: ${{ env.GITHUB_REPOSITORY }}
+          repository: ${{ github.repository }}
       - name: "Checkout"
         uses: actions/checkout@v2
         with: 
