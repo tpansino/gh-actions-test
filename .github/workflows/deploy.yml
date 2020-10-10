@@ -11,7 +11,7 @@ jobs:
       - name: Find pull request number for branch
         uses: juliangruber/find-pull-request-action@v1
         id: find-pull-request
-			- name: Set PR Status to pending
+      - name: Set PR Status to pending
         uses: niteoweb/pull_request_status_action@v1.0.0
         #env:
         #  # Default Github Token
