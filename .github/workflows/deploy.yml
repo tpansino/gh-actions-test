@@ -6,7 +6,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-18.04
-    name: "Deploy"
     steps:
-      - run: |
-        echo ${{ toJson(github) }}
+      - name: Dump context
+        uses: crazy-max/ghaction-dump-context@v1
