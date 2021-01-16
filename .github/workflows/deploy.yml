@@ -6,10 +6,10 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-18.04
+    env:
+        GITHUB_EVENT_NAME: ${{ github.event_name == "workflow_dispatch" }}
     steps:
-      - env:
-          GITHUB_EVENT_NAME: ${{ github.event_name == "workflow_dispatch" }}
-        run: |
-        echo "$GITHUB_EVENT_NAME"
+      - run: |
+          echo "$GITHUB_EVENT_NAME"
       - name: Dump context
         uses: crazy-max/ghaction-dump-context@v1
