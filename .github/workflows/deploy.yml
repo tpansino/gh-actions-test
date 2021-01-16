@@ -7,7 +7,7 @@ jobs:
   deploy:
     runs-on: ubuntu-18.04
     env:
-        GITHUB_EVENT_NAME: ${{ github.event_name == "workflow_dispatch" }}
+        GITHUB_EVENT_NAME: ${{ github.event_name == workflow_dispatch }}
     steps:
       - run: |
           echo "$GITHUB_EVENT_NAME"
