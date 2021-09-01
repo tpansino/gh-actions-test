@@ -16,3 +16,4 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             console.log('${{ github.ref }}');
+            console.log('${{ github.event.ref }}');
