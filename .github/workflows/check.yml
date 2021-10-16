@@ -1,6 +1,7 @@
 name: "Check"
 
 on:
+  workflow_dispatch:
   push:
     branches-ignore:
       - master
@@ -8,6 +9,7 @@ on:
 jobs:
   is-branch-up-to-date:
     name: Is Branch Up To Date
+    environment: test
     runs-on: ubuntu-20.04
     steps:
       - name: Is Branch Up To Date
