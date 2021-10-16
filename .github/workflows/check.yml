@@ -2,9 +2,9 @@ name: "Check"
 
 on:
   workflow_dispatch:
-  push:
-    branches-ignore:
-      - master
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: master
 
 jobs:
   is-branch-up-to-date:
