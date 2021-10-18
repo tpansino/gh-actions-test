@@ -4,7 +4,11 @@ on:
   workflow_dispatch:
   pull_request:
     types: [opened, synchronize, reopened]
-    branches: master
+    branches: 
+      - master
+  push:
+    branches-ignore: 
+      - master
 
 jobs:
   is-branch-up-to-date:
@@ -17,9 +21,11 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            let mergingBranchSha = "${{ github.event.pull_request.base.sha }}"
-            let response = await github.request("GET /repos/${{ github.event.pull_request.base.repo.full_name }}/git/ref/heads/${{ github.event.repository.default_branch }}")
+            let mergingBranchSha = "${{ github.sha }}"
+            let response = await github.request("GET /repos/${{ github.repository }}/git/ref/heads/${{ github.event.repository.default_branch }}")
             let baseBranchSha = response.data.object.sha
+            let branchName = "${{ github.ref }}".replace("refs/heads/", "")
+
             if ( mergingBranchSha !== baseBranchSha ) {
-              core.setFailed("Branch ${{ github.event.pull_request.head.ref }} is not up to date with ${{ github.event.repository.default_branch }}")
+              core.setFailed(`Branch ${branchName} is not up to date with ${{ github.event.repository.default_branch }}`)
             }
