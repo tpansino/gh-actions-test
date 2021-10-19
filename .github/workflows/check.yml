@@ -22,13 +22,15 @@ jobs:
       - name: Is PR Up To Date
         if: github.event_name == 'pull_request'
         run: |
+          set -euo pipefail
+
           base_ref="origin/${{ github.base_ref }}"
           merging_ref="origin/${{ github.head_ref }}"
 
           fork_point_sha=$(git merge-base --fork-point "$base_ref" "$merging_ref")
           base_branch_head_sha=$(git show-ref --hash "$base_ref")
 
-          if [ $fork_point_sha != $base_branch_head_sha ]; then
+          if [[ $fork_point_sha != $base_branch_head_sha ]]; then
             echo "::error::Branch ${branchName} is not up to date with ${{ github.event.repository.default_branch }}"
             exit 1
           fi
