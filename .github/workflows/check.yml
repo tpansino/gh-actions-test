@@ -29,10 +29,10 @@ jobs:
           status=$?
           set -e
 
-          if [[ $? -eq 1 ]]; then
+          if [[ $status -eq 1 ]]; then
             echo "::error::Branch ${merging_branch} is not up to date with ${base_branch}"
             exit 1
-          elif [[ $? -ne 0 ]]; then
+          elif [[ $status -ne 0 ]]; then
             echo "::error::Unable to determine if ${merging_branch} is up to date with ${base_branch}"
             exit 2
           fi
