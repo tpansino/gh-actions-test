@@ -34,7 +34,7 @@ jobs:
 
             let response = await github.request("GET /repos/${{ github.repository }}/git/ref/heads/${{ github.event.repository.default_branch }}")
             let baseBranchSha = response.data.object.sha
-            console.log("${{ github.event.repository.default_branch }} branch current SHA: ${baseBranchSha}");
+            console.log(`${{ github.event.repository.default_branch }} branch current SHA: ${baseBranchSha}`);
 
             if ( mergingBranchSha !== baseBranchSha ) {
               core.setFailed(`Branch ${branchName} is not up to date with ${{ github.event.repository.default_branch }}`)
