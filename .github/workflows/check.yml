@@ -29,5 +29,6 @@ jobs:
           base_branch_head_sha=$(git show-ref --hash "$base_ref")
 
           if [ $fork_point_sha != $base_branch_head_sha ]; then
-            echo "::set-failed::Branch ${branchName} is not up to date with ${{ github.event.repository.default_branch }}"
+            echo "::error::Branch ${branchName} is not up to date with ${{ github.event.repository.default_branch }}"
+            exit 1
           fi
