@@ -26,7 +26,7 @@ jobs:
           base_branch="${{ github.base_ref }}"
           merging_branch="${{ github.head_ref }}"
 
-          if $(git merge-base --is-ancestor "$base_branch" "$merging_branch"); then
+          if $(git merge-base --is-ancestor "origin/$base_branch" "origin/$merging_branch"); then
             echo "::error::Branch ${merging_branch} is not up to date with ${base_branch}"
             exit 1
           fi
