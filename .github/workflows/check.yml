@@ -21,8 +21,6 @@ jobs:
       - name: Is PR Up To Date
         if: github.event_name == 'pull_request'
         run: |
-          set -euo pipefail
-
           base_branch="${{ github.base_ref }}"
           merging_branch="${{ github.head_ref }}"
 
