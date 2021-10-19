@@ -27,6 +27,7 @@ jobs:
           base_branch="${{ github.base_ref }}"
           merging_branch="${{ github.head_ref }}"
 
+          echo "Before"
           fork_point_sha=$(git merge-base --fork-point "origin/$base_branch" "origin/$merging_branch")
           echo "fork_point_sha=$fork_point_sha"
           base_branch_head_sha=$(git show-ref --hash "origin/$base_branch")
