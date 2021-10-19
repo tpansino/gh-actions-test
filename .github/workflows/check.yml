@@ -19,12 +19,13 @@ jobs:
       - name: Is PR Up To Date
         uses: actions/github-script@v5
         if: github.event_name == 'pull_request'
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            let mergingBranchSha = "${{ github.event.pull_request.base.sha }}"
-            let response = await github.request("GET /repos/${{ github.repository }}/git/ref/heads/${{ github.event.repository.default_branch }}")
-            let baseBranchSha = response.data.object.sha
-            if ( mergingBranchSha !== baseBranchSha ) {
-              core.setFailed("Branch ${{ github.event.pull_request.head.ref }} is not up to date with ${{ github.event.repository.default_branch }}")
-            }
+        run: |
+          base_ref=${{ github.base_ref }}
+          merging_ref=${{ github.head_ref }}
+
+          fork_point_sha=$(git merge-base --fork-point $base_ref $merging_ref)
+          base_branch_head_sha=$(git show-ref --hash $base_ref)
+
+          if [ $fork_point_sha != $base_branch_head_sha ]; then
+            echo "::set-failed::Branch ${branchName} is not up to date with ${{ github.event.repository.default_branch }}"
+          fi
