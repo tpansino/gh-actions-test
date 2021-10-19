@@ -24,6 +24,8 @@ jobs:
         run: |
           set -euo pipefail
 
+          git branch -a
+
           base_branch="${{ github.base_ref }}"
           merging_branch="${{ github.head_ref }}"
 
