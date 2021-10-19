@@ -11,30 +11,20 @@ on:
       - master
 
 jobs:
-  is-branch-up-to-date:
-    name: Is Branch Up To Date
+  is-pr-up-to-date:
+    name: Is PR Up To Date
     environment: test
     runs-on: ubuntu-20.04
     steps:
-      - name: Is Branch Up To Date
+      - name: Is PR Up To Date
         uses: actions/github-script@v5
+        if: github.event_name == 'pull_request'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            let mergingBranchSha;
-            let branchName;
-
-            if ( "${{ github.event_name }}" === "pull_request" ) {
-              mergingBranchSha = "${{ github.event.pull_request.base.sha }}"
-              branchName = "${{ github.event.pull_request.head.ref }}"
-            } else {
-              mergingBranchSha = "${{ github.sha }}"
-              branchName = "${{ github.ref }}".replace("refs/heads/", "")
-            }
-
+            let mergingBranchSha = "${{ github.event.pull_request.base.sha }}"
             let response = await github.request("GET /repos/${{ github.repository }}/git/ref/heads/${{ github.event.repository.default_branch }}")
             let baseBranchSha = response.data.object.sha
-
             if ( mergingBranchSha !== baseBranchSha ) {
-              core.setFailed(`Branch ${branchName} is not up to date with ${{ github.event.repository.default_branch }}`)
+              core.setFailed("Branch ${{ github.event.pull_request.head.ref }} is not up to date with ${{ github.event.repository.default_branch }}")
             }
