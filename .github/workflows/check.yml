@@ -32,5 +32,4 @@ jobs:
 
           if [[ $fork_point_sha != $base_branch_head_sha ]]; then
             echo "::error::Branch ${merging_branch} is not up to date with ${base_branch}"
-            exit 1
           fi
