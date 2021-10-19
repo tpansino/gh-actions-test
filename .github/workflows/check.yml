@@ -28,10 +28,10 @@ jobs:
           merging_branch="${{ github.head_ref }}"
 
           fork_point_sha=$(git merge-base --fork-point "origin/$base_branch" "origin/$merging_branch")
+          echo "fork_point_sha=$fork_point_sha"
           base_branch_head_sha=$(git show-ref --hash "origin/$base_branch")
+          echo "base_branch_head_sha=$base_branch_head_sha"
           
-          echo "Made it"
-
           if [[ $fork_point_sha != $base_branch_head_sha ]]; then
             echo "::error::Branch ${merging_branch} is not up to date with ${base_branch}"
             exit 1
