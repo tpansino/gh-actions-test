@@ -13,12 +13,9 @@ on:
 jobs:
   is-pr-up-to-date:
     name: Is PR Up To Date
-    environment: test
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
       - name: Is PR Up To Date
         if: github.event_name == 'pull_request'
         run: |
@@ -27,7 +24,10 @@ jobs:
           base_branch="${{ github.base_ref }}"
           merging_branch="${{ github.head_ref }}"
 
-          echo "Before"
+          git checkout origin/$base_branch
+          git checkout origin/$merging_branch
+          git checkout ${{ github.ref }}
+
           fork_point_sha=$(git merge-base --fork-point "origin/$base_branch" "origin/$merging_branch")
           echo "fork_point_sha=$fork_point_sha"
           base_branch_head_sha=$(git show-ref --hash "origin/$base_branch")
