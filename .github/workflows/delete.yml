@@ -19,6 +19,6 @@ jobs:
           if [[ -z "$slug" ]]; then
             slug="${{ github.event.ref }}"
           fi
-          slug=$(echo "$slug" | sed -e 's/[\[\]]//g' -e 's#^refs/heads/##' | cut -c 1-50)
+          slug=$(echo "$slug" | tr -d '[]' | sed -e 's#^refs/heads/##' | cut -c 1-50)
           slug="[$slug]"
           echo SLUG=$slug
