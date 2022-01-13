@@ -4,8 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       root-page-title:
-        required: true
-        default: "${{ github.event.ref }}"
+        description: "Title of top-level Confluence page to destroy under 'New Policy Development' (eg: [feature/DEVO-123-new-policy])"
+        required: false
+        default: ""
   delete:
 
 jobs:
@@ -14,5 +15,8 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - run: |
-          slug="[$(echo "${{ github.event.ref }}" | sed -e 's#^refs/heads/##' | cut -c 1-50)]"
+          slug="${{ github.event.inputs.root-page-title }}"
+          if [[ -z "$slug" ]]; then
+            slug="${{ github.event.ref }}"
+          slug="[$(echo "$slug" | sed -e 's/[\[\]]//g' -e 's#^refs/heads/##' | cut -c 1-50)]"
           echo SLUG=$slug
