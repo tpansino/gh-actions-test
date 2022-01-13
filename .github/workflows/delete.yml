@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       root-page-title:
-        description: "Title of top-level Confluence page to destroy under 'New Policy Development' (eg: [feature/DEVO-123-new-policy])"
+        description: "Root Page Title (title of page tree under 'New Policy Development', eg: [feature/DEVO-123-new-policy])"
         required: false
         default: ""
   delete:
