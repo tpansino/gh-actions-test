@@ -1,6 +1,7 @@
 name: "Delete"
 
 on:
+  workflow_dispatch:
   delete:
 
 jobs:
