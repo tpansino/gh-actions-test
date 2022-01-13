@@ -2,6 +2,10 @@ name: "Delete"
 
 on:
   workflow_dispatch:
+    inputs:
+      root-page-title:
+      required: true
+      default: ${{ github.event.ref }}
   delete:
 
 jobs:
