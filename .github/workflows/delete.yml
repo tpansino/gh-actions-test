@@ -10,6 +10,5 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - run: |
-          echo "${{ github.ref }}"
-          echo "${{ github.ref_name }}"
-          echo "${{ toJson(github.event) }}" | jq .
+          slug="[$(echo "${{ github.event.ref }}" | sed -e 's#^refs/heads/##' | cut -c 1-50)]"
+          echo SLUG=$slug
