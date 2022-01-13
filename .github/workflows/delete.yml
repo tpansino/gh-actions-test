@@ -5,7 +5,7 @@ on:
     inputs:
       root-page-title:
       required: true
-      default: ${{ github.event.ref }}
+      default: "${{ github.event.ref }}"
   delete:
 
 jobs:
