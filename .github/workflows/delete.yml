@@ -15,10 +15,4 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - run: |
-          slug="${{ github.event.inputs.root-page-title }}"
-          if [[ -z "$slug" ]]; then
-            slug="${{ github.event.ref }}"
-          fi
-          slug=$(echo "$slug" | tr -d '[]' | sed -e 's#^refs/heads/##' | cut -c 1-50)
-          slug="[$slug]"
-          echo SLUG=$slug
+          echo $SHELL
