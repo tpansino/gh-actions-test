@@ -5,7 +5,4 @@ on:
 
 jobs:
   test:
-    name: Test
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: ./.github/workflows/test-reusable.yml
+    uses: ./.github/workflows/test-reusable.yml
