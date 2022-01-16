@@ -7,6 +7,10 @@ on:
         description: Who to say hello to
         default: "World"
         type: string
+    outputs:
+      foo:
+        description: Foo
+        value: ${{ jobs.test-reusable.outputs.foo }}
 
 jobs:
   test-reusable:
