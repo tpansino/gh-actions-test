@@ -1,0 +1,13 @@
+name: "Bye"
+
+on:
+  workflow_run:
+    workflows: [Test]
+    types: [completed]
+
+jobs:
+  bye:
+    name: "Bye"
+    uses: tpansino/gh-actions-test/.github/workflows/test-reusable.yml@main
+    with:
+      subject: "and Goodbye"
