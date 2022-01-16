@@ -5,4 +5,4 @@ on:
 
 jobs:
   test:
-    uses: OpenSesame/policy-docs/.github/workflows/test-reusable.yml@main
+    uses: tpansino/gh-actions-test/.github/workflows/test-reusable.yml@main
