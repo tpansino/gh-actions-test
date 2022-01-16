@@ -8,4 +8,4 @@ jobs:
     name: Test
     runs-on: ubuntu-20.04
     steps:
-      - uses: ./test-reusable.yml
+      - uses: OpenSesame/policy-docs/.github/workflows/test-reusable.yml
