@@ -2,12 +2,18 @@ name: "Test Reusable"
 
 on:
   workflow_call:
+    inputs:
+      subject:
+        description: Who to say hello to
+        default: "World"
+        required: true
+        type: string
 
 jobs:
   test-reusable:
     name: Test Reusable
     runs-on: ubuntu-20.04
     steps:
-      - name: Hello World
+      - name: Hello
         run: |
-          echo "Hello from a reusable workflow"
+          echo "Hello ${{ inputs.subject }}"
