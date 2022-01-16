@@ -6,7 +6,6 @@ on:
       subject:
         description: Who to say hello to
         default: "World"
-        required: true
         type: string
 
 jobs:
