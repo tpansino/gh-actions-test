@@ -7,10 +7,18 @@ on:
         description: Who to say hello to
         default: "World"
         type: string
+      mybool:
+        description: My boolean
+        default: true
+        type: boolean
     outputs:
       foo:
         description: Foo
         value: ${{ jobs.test-reusable.outputs.foo }}
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
   test-reusable:
@@ -22,5 +30,11 @@ jobs:
       - name: Hello
         id: hello
         run: |
+          echo "My bool ${{ inputs.mybool }}"
+          if [[ ${{ inputs.mybool }} == "true" ]]; then
+            echo yes
+          else
+            echo no
+          fi
           echo "Hello ${{ inputs.subject }}"
           echo "::set-output name=foo::bar"
