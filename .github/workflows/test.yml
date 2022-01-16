@@ -9,3 +9,10 @@ jobs:
     uses: tpansino/gh-actions-test/.github/workflows/test-reusable.yml@main
     with:
       subject: "Universe"
+
+  test2:
+    name: "Test2"
+    needs: test
+    steps:
+      - run: |
+          echo "foo = '${{ needs.test.outputs.foo }}'"
