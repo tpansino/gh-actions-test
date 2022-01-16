@@ -7,3 +7,5 @@ jobs:
   test:
     name: "Test"
     uses: tpansino/gh-actions-test/.github/workflows/test-reusable.yml@main
+    with:
+      subject: "Universe"
