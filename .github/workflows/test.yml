@@ -6,9 +6,12 @@ on:
 jobs:
   test:
     name: "Test"
-    uses: tpansino/gh-actions-test/.github/workflows/test-reusable.yml@main
-    with:
-      subject: "Universe"
+    runs-on: ubuntu-latest
+    steps:
+    - name: "Test Action"
+      uses: ./.github/actions/action.yml@main
+      with:
+        subject: "Universe"
 
   test2:
     name: "Test2"

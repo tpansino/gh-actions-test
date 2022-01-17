@@ -1,0 +1,20 @@
+name: "Test Reusable"
+description: "Test Reusable Actions"
+
+inputs:
+  subject:
+    description: Who to say hello to
+    default: "World"
+    type: string
+  mybool:
+    description: My boolean
+    default: true
+    type: boolean
+
+outputs:
+  foo:
+    description: Foo
+
+runs:
+  using: 'node16'
+  main: main.js
