@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: "Test Action"
-      uses: ./.github/actions
+      uses: tpansino/gh-actions-test/.github/actions@main
       with:
         subject: "Universe"
 
