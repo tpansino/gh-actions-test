@@ -14,7 +14,20 @@ inputs:
 outputs:
   foo:
     description: Foo
+    value: ${{ steps.hello.outputs.foo }}
 
 runs:
-  using: 'node16'
-  main: main.js
+  using: 'composite'
+  steps:
+    - name: Hello
+      id: hello
+      shell: bash
+      run: |
+        echo "Hello ${{ inputs.subject }}"
+        echo "My bool is ${{ inputs.mybool }}"
+        if [[ "${{ inputs.mybool }}" == "true" ]]; then
+          echo "yes"
+        else
+          echo "no"
+        fi
+        echo "::set-output name=foo::bar"
