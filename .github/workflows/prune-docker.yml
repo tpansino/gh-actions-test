@@ -16,7 +16,7 @@ jobs:
       - uses: snok/container-retention-policy@v1
         with:
           image-names: policy-docs
-          cut-off: five minutes ago UTC
+          cut-off: two minutes ago UTC
           timestamp-to-use: updated_at
           account-type: personal
           keep-at-least: 2
