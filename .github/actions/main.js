@@ -1,13 +1,16 @@
 const core = require('@actions/core');
 
-console.log("My bool ${{ inputs.mybool }}");
+mybool = core.getInput("mybool");
 
-if (${{ inputs.mybool }} == "true") {
+console.log("My bool ${mybool}");
+
+if ($mybool === true) {
   console.log("yes");
 } else {
   console.log("no");
 }
 
-console.log("Hello ${{ inputs.subject }}");
+subject = core.getInput("subject");
+console.log("Hello ${subject}");
 
 core.setOutput("foo", "bar");
