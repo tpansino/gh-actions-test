@@ -21,4 +21,4 @@ jobs:
           account-type: personal
           keep-at-least: 2
           skip-tags: latest
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT }}
