@@ -1,0 +1,23 @@
+name: Bar
+
+on:
+  workflow_call:
+    outputs:
+      myout:
+        description: "My out"
+        value: "${{ jobs.bar.outputs.myout }}"
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  bar:
+    name: Bar
+    runs-on: ubuntu-latest
+    outputs:
+      myout: ${{ steps.bar.outputs.myout }}
+    steps:
+      - id: bar
+        run: |
+          echo "::set-output name=myout::hello"

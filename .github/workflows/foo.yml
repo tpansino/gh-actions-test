@@ -1,0 +1,17 @@
+name: Foo
+
+on:
+  push:
+
+jobs:
+  bar:
+    name: Bar
+    uses: tpansino/gh-actions-test/.github/workflows/bar.yml@main
+
+  baz:
+    name: Baz
+    runs-on: ubuntu-latest
+    needs: bar
+    steps:
+      - run: echo "${{ needs.bar.outputs.myout }}"
+    
