@@ -20,4 +20,5 @@ jobs:
     steps:
       - id: bar
         run: |
-          echo "::set-output name=myout::hello2"
+          hash=${{ hashFiles('.github/workflows/foo.yml', '.github/workflows/bar.yml') }}
+          echo "::set-output name=myout::$hash"
