@@ -3,7 +3,7 @@ name: Bar
 on:
   workflow_call:
     outputs:
-      myout:
+      my-out:
         description: "My out"
         value: "${{ jobs.bar.outputs.myout }}"
 
@@ -20,4 +20,4 @@ jobs:
     steps:
       - id: bar
         run: |
-          echo "::set-output name=myout::hello"
+          echo "::set-output name=myout::hello2"

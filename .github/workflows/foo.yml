@@ -13,5 +13,5 @@ jobs:
     runs-on: ubuntu-latest
     needs: bar
     steps:
-      - run: echo "${{ needs.bar.outputs.myout }}"
+      - run: echo "${{ needs.bar.outputs.my-out }}"
     
