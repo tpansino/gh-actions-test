@@ -1,0 +1,27 @@
+name: "Determine Image"
+description: "Determine the name and tag of the image to build"
+
+outputs:
+  image:
+    description: "Image (eg: ghcr.io/opensesame/my-container)"
+    value: "${{ steps.determine-image.outputs.image }}"
+  tag:
+    description: "Tag of image (eg: b028fd5c257db66265ee022764045810dc58119b64420a77ba0aae6273981cd3)"
+    value: "${{ steps.determine-image.outputs.tag }}"
+  image-tag:
+    description: "Image with tag (eg: ghcr.io/opensesame/my-container:b028fd5c257db66265ee022764045810dc58119b64420a77ba0aae6273981cd3)"
+    value: "${{ steps.determine-image.outputs.image }}:${{ steps.determine-image.outputs.tag }}"
+
+runs:
+  using: composite
+  steps:
+    - name: "Checkout"
+      uses: actions/checkout@v2
+    - name: Determine Image
+      id: determine-image
+      shell: bash
+      run: |
+        tag="abacdefadfaa0121235456"
+        image="my-image"
+        echo "::set-output name=image::$image"
+        echo "::set-output name=tag::$tag"

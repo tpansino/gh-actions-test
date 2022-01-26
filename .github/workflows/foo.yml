@@ -4,14 +4,17 @@ on:
   push:
 
 jobs:
-  bar:
-    name: Bar
-    uses: tpansino/gh-actions-test/.github/workflows/bar.yml@main
+  determine-image:
+    name: Determine Image
+    uses: tpansino/gh-actions-test/.github/workflows/determine-image.yml@main
 
-  baz:
-    name: Baz
+  echo:
+    name: echo
     runs-on: ubuntu-latest
-    needs: bar
+    needs: determine-image
     steps:
-      - run: echo "${{ needs.bar.outputs.my-out }}"
+      - run: |
+          echo "IMAGE = ${{ needs.determine-image.outputs.image }}"
+          echo "TAG = ${{ needs.determine-image.outputs.tag }}"
+          echo "IMAGE_TAG = ${{ needs.determine-image.outputs.image-tag }}"
     

@@ -1,0 +1,32 @@
+---
+name: "Determine Image"
+
+on:
+  workflow_call:
+    outputs:
+      image:
+        description: "Image (eg: ghcr.io/opensesame/my-container)"
+        value: "${{ jobs.determine-image.outputs.image }}"
+      tag:
+        description: "Tag of image (eg: b028fd5c257db66265ee022764045810dc58119b64420a77ba0aae6273981cd3)"
+        value: "${{ jobs.determine-image.outputs.tag }}"
+      image-tag:
+        description: "Image with tag (eg: ghcr.io/opensesame/my-container:b028fd5c257db66265ee022764045810dc58119b64420a77ba0aae6273981cd3)"
+        value: "${{ jobs.determine-image.outputs.image }}:${{ jobs.determine-image.outputs.tag }}"
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  determine-image:
+    name: Determine Image
+    runs-on: ubuntu-20.04
+    outputs:
+      image: ${{ steps.determine-image.outputs.image }}
+      tag: ${{ steps.determine-image.outputs.tag }}
+      image-tag: ${{ steps.determine-image.outputs.image }}:${{ steps.determine-image.outputs.tag }}
+    steps:
+      - name: Determine image
+        id: determine-image
+        uses: tpansino/gh-actions-test/.github/actions/determine-image@main
