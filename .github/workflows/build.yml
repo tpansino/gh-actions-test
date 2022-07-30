@@ -23,9 +23,11 @@ jobs:
           images: |
             devops-base-image
           tags: |
-            type=ref,event=branch,prefix=branch-
-            type=sha,format=long,prefix=commit-
+            type=ref,event=branch,prefix=branch-,priority=500
+            type=sha,format=long,prefix=commit-,priority=200
       - name: Echo tags
         run: echo "${{ steps.meta.outputs.tags }}"
       - name: Echo JSON
         run: echo "${{ steps.meta.outputs.json }}"
+      - name: Echo extracted JSON
+        run: echo "${{ fromJson(steps.meta.outputs.json).tags[0] }}"
