@@ -5,4 +5,3 @@ repos:
     hooks:
       - id: actionlint-docker
         name: actionlint
-        args: ["-ignore", "unexpected key \"outputs\" for \"workflow_call\" section.", "-ignore", "property \".+\" is not defined in object type"]
