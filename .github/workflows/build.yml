@@ -23,7 +23,9 @@ jobs:
           images: |
             devops-base-image
           tags: |
-            type=ref,event=branch
+            type=ref,event=branch,prefix=branch-
             type=sha,format=long,prefix=commit-
-      - name: Echo
+      - name: Echo tags
         run: echo "${{ steps.meta.outputs.tags }}"
+      - name: Echo JSON
+        run: echo "${{ steps.meta.outputs.json }}"
