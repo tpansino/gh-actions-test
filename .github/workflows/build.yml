@@ -26,4 +26,4 @@ jobs:
             type=ref,event=branch
             type=sha,format=long,prefix=commit-
       - name: Echo
-        run: echo "{{ steps.meta.outputs.tags }}"
+        run: echo "${{ steps.meta.outputs.tags }}"
