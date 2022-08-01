@@ -2,13 +2,7 @@
 name: "Build"
 
 on:
-  pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-    branches:
-      - main
+  push:
   workflow_dispatch:
 
 defaults:
@@ -27,4 +21,4 @@ jobs:
           images: |
             devops-base-image
           tags: |
-            type=raw,value={{branch}}${{ github.event.pull_request.head.ref }}
+            type=raw,value=${{ github.ref_name }}${{ github.event.pull_request.head.ref }}
