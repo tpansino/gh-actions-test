@@ -27,4 +27,4 @@ jobs:
           images: |
             devops-base-image
           tags: |
-            type=raw,value={{branch}}{{github.event.pull_request.head.ref}}
+            type=raw,value={{branch}}${{ github.event.pull_request.head.ref }}
