@@ -17,3 +17,4 @@ jobs:
     steps:
       - name: Dump context
         uses: crazy-max/ghaction-dump-context@v1
+      - run: echo ${{ github.event.commits[-2].id }}
