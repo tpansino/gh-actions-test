@@ -21,4 +21,7 @@ jobs:
           images: |
             devops-base-image
           tags: |
-            type=raw,value=${{ github.ref_name }}${{ github.event.pull_request.head.ref }}
+            type=sha,format=long,prefix=commit-,priority=10000,enable=${{ github.event_name != 'pull_request' }}
+            type=raw,value=${{ github.event.pull_request.head.sha }},prefix=commit-,priority=10000,enable=${{ github.event_name == 'pull_request' }}
+            type=ref,event=branch,prefix=branch-,priority=9900,enable=${{ github.event_name != 'pull_request' }}
+            type=raw,value=${{ github.event.pull_request.head.ref }},prefix=branch-,priority=9900,enable=${{ github.event_name == 'pull_request' }}
