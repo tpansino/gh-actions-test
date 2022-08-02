@@ -3,9 +3,8 @@ name: "Build"
 
 on:
   push:
-    branches-ignore:
+    branches:
       - main
-  workflow_dispatch:
 
 defaults:
   run:
@@ -16,11 +15,5 @@ jobs:
     name: Build
     runs-on: ubuntu-20.04
     steps:
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          images: |
-            devops-base-image
-          tags: |
-            type=raw,value={{branch}}{{github.event.pull_request.head.ref}}
+      - name: Dump context
+        uses: crazy-max/ghaction-dump-context@v1
