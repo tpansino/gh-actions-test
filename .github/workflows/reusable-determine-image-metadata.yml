@@ -54,11 +54,11 @@ jobs:
           # yamllint disable rule:line-length
           tags: |
             priority=9999,enable=${{ github.event_name != 'pull_request' }},prefix=commit-,type=sha,format=long
-            priority=9999,enable=${{ github.event_name == 'pull_request' && github.action != 'closed' }},prefix=commit-,type=raw,value=${{ github.event.pull_request.head.sha }}
-            priority=9999,enable=${{ github.event_name == 'pull_request' && github.action == 'closed' }},prefix=commit-,type=sha,format=long
+            priority=9999,enable=${{ github.event_name == 'pull_request' && github.event.action != 'closed' }},prefix=commit-,type=raw,value=${{ github.event.pull_request.head.sha }}
+            priority=9999,enable=${{ github.event_name == 'pull_request' && github.event.action == 'closed' }},prefix=commit-,type=sha,format=long
             priority=9900,enable=${{ github.event_name != 'pull_request' }},prefix=branch-,type=ref,event=branch
-            priority=9900,enable=${{ github.event_name == 'pull_request' && github.action != 'closed' }},prefix=branch-,type=raw,value=${{ github.event.pull_request.head.ref }}
-            priority=9900,enable=${{ github.event_name == 'pull_request' && github.action == 'closed' }},prefix=branch-,type=raw,value=${{ github.event.pull_request.base.ref }}
+            priority=9900,enable=${{ github.event_name == 'pull_request' && github.event.action != 'closed' }},prefix=branch-,type=raw,value=${{ github.event.pull_request.head.ref }}
+            priority=9900,enable=${{ github.event_name == 'pull_request' && github.event.action == 'closed' }},prefix=branch-,type=raw,value=${{ github.event.pull_request.base.ref }}
             priority=9800,enable={{is_default_branch}},type=raw,value=latest
           # yamllint enable rule:line-length
 
@@ -71,8 +71,8 @@ jobs:
           # yamllint disable rule:line-length
           tags: |
             priority=9999,enable=${{ github.event_name != 'pull_request' }},prefix=commit-,type=sha,format=long
-            priority=9999,enable=${{ github.event_name == 'pull_request' && github.action != 'closed' }},prefix=commit-,type=raw,value=${{ github.event.pull_request.head.sha }}
-            priority=9999,enable=${{ github.event_name == 'pull_request' && github.action == 'closed' }},prefix=commit-,type=sha,format=long
+            priority=9999,enable=${{ github.event_name == 'pull_request' && github.event.action != 'closed' }},prefix=commit-,type=raw,value=${{ github.event.pull_request.head.sha }}
+            priority=9999,enable=${{ github.event_name == 'pull_request' && github.event.action == 'closed' }},prefix=commit-,type=sha,format=long
             priority=9900,enable=${{ github.event_name != 'pull_request' }},prefix=branch-,type=ref,event=branch
             priority=9900,enable=${{ github.event_name == 'pull_request' }},prefix=branch-,type=raw,value=${{ github.event.pull_request.head.ref }}
             priority=9900,enable=${{ github.event_name == 'pull_request' }},prefix=branch-,type=raw,value=${{ github.event.pull_request.base.ref }}
