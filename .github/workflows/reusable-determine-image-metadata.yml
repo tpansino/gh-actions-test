@@ -1,0 +1,72 @@
+---
+name: "Determine Image Metadata"
+
+on:
+  workflow_call:
+    inputs:
+      image:
+        description: "Name of image to build (eg: my-container)"
+        type: string
+        required: true
+    outputs:
+      branch-image-tag:
+        description: "The image tag determined by the branch name."
+        value: ${{ jobs.determine-image-metadata.outputs.branch-image-tag }}
+      commit-image-tag:
+        description: "The image tag determined by the Git commit SHA."
+        value: ${{ jobs.determine-image-metadata.outputs.commit-image-tag }}
+      image-tags:
+        description: "All determined image tags."
+        value: ${{ jobs.determine-image-metadata.outputs.image-tags }}
+      cache-from-image-tags:
+        description: "All determined image tags to use for populating the build cache."
+        value: ${{ jobs.determine-image-metadata.outputs.cache-from-image-tags }}
+      image-labels:
+        description: "All determined image labels."
+        value: ${{ jobs.determine-image-metadata.outputs.image-labels }}
+      image-name:
+        description: "Name of image."
+        value: ${{ inputs.image }}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  determine-image-metadata:
+    name: Determine Image Metadata
+    runs-on: ubuntu-20.04
+    outputs:
+      commit-image-tag: ${{ fromJSON(steps.determine-image-tags-labels.outputs.json).tags[0] }}
+      branch-image-tag: ${{ fromJSON(steps.determine-image-tags-labels.outputs.json).tags[1] }}
+      image-tags: ${{ steps.determine-image-tags-labels.outputs.tags }}
+      cache-from-image-tags: |
+        ${{ steps.determine-image-tags-labels.outputs.tags }}
+        ${{ steps.determine-cache-from-image-tags.outputs.tags }}
+      image-labels: ${{ steps.determine-image-tags-labels.outputs.labels }}
+    steps:
+      - name: Determine image tags and labels
+        id: determine-image-tags-labels
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ${{ inputs.image }}
+          # yamllint disable rule:line-length
+          tags: |
+            priority=9999,enable=${{ github.event_name != 'pull_request' }},prefix=commit-,type=sha,format=long
+            priority=9999,enable=${{ github.event_name == 'pull_request' }},prefix=commit-,type=raw,value=${{ github.event.pull_request.head.sha }}
+            priority=9900,enable=${{ github.event_name != 'pull_request' }},prefix=branch-,type=ref,event=branch
+            priority=9900,enable=${{ github.event_name == 'pull_request' }},prefix=branch-,type=raw,value=${{ github.event.pull_request.head.ref }}
+            priority=9800,enable={{is_default_branch}},type=raw,value=latest
+          # yamllint enable rule:line-length
+
+      - name: Determine extra cache-from image tags
+        id: determine-cache-from-image-tags
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ${{ inputs.image }}
+          # yamllint disable rule:line-length
+          tags: |
+            priority=9850,enable=${{ github.event_name == 'pull_request' && github.event.pull_request.merged == true }},prefix=branch-,type=raw,value=${{ github.event.pull_request.head.ref }}
+          # yamllint enable rule:line-length

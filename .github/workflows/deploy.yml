@@ -1,8 +1,10 @@
 ---
-name: "Build"
+name: "Deploy"
 
 on:
-  push:
+  pull_request:
+    types:
+      - closed
     branches:
       - main
 
@@ -11,10 +13,17 @@ defaults:
     shell: bash
 
 jobs:
-  build:
-    name: Build
+  determine-image-metadata:
+    if: github.event.pull_request.merged == true
+    name: Determine Image Metadata
+    uses: ./.github/workflows/reusable-determine-image-metadata.yml
+    with:
+      image: ghcr.io/opensesame/devops-base-image
+
+  deploy:
+    if: github.event.pull_request.merged == true
+    name: Deploy
     runs-on: ubuntu-20.04
     steps:
       - name: Dump context
         uses: crazy-max/ghaction-dump-context@v1
-      - run: echo ${{ github.event.commits[-2].id }}
