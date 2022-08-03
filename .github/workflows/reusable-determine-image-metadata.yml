@@ -55,7 +55,7 @@ jobs:
           tags: |
             priority=9999,enable=${{ github.event_name != 'pull_request' }},prefix=commit-,type=sha,format=long
             priority=9999,enable=${{ github.event_name == 'pull_request' && github.action != 'closed' }},prefix=commit-,type=raw,value=${{ github.event.pull_request.head.sha }}
-            priority=9999,enable=${{ github.event_name == 'pull_request' && github.action == 'closed' }},prefix=commit-,type=raw,value=${{ github.event.pull_request.merge_commit_sha }}
+            priority=9999,enable=${{ github.event_name == 'pull_request' && github.action == 'closed' }},prefix=commit-,type=sha,format=long
             priority=9900,enable=${{ github.event_name != 'pull_request' }},prefix=branch-,type=ref,event=branch
             priority=9900,enable=${{ github.event_name == 'pull_request' && github.action != 'closed' }},prefix=branch-,type=raw,value=${{ github.event.pull_request.head.ref }}
             priority=9900,enable=${{ github.event_name == 'pull_request' && github.action == 'closed' }},prefix=branch-,type=raw,value=${{ github.event.pull_request.base.ref }}
@@ -72,7 +72,7 @@ jobs:
           tags: |
             priority=9999,enable=${{ github.event_name != 'pull_request' }},prefix=commit-,type=sha,format=long
             priority=9999,enable=${{ github.event_name == 'pull_request' && github.action != 'closed' }},prefix=commit-,type=raw,value=${{ github.event.pull_request.head.sha }}
-            priority=9999,enable=${{ github.event_name == 'pull_request' && github.action == 'closed' }},prefix=commit-,type=raw,value=${{ github.event.pull_request.merge_commit_sha }}
+            priority=9999,enable=${{ github.event_name == 'pull_request' && github.action == 'closed' }},prefix=commit-,type=sha,format=long
             priority=9900,enable=${{ github.event_name != 'pull_request' }},prefix=branch-,type=ref,event=branch
             priority=9900,enable=${{ github.event_name == 'pull_request' }},prefix=branch-,type=raw,value=${{ github.event.pull_request.head.ref }}
             priority=9900,enable=${{ github.event_name == 'pull_request' }},prefix=branch-,type=raw,value=${{ github.event.pull_request.base.ref }}
