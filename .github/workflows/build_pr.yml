@@ -1,0 +1,25 @@
+---
+name: "Build PR"
+
+on:
+  pull_request:
+    branches:
+      - main
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  determine-image-metadata:
+    name: Determine Image Metadata
+    uses: ./.github/workflows/reusable-determine-image-metadata.yml
+    with:
+      image: ghcr.io/opensesame/devops-base-image
+
+  build:
+    name: Build PR
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Dump context
+        uses: crazy-max/ghaction-dump-context@v1
