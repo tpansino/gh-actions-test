@@ -128,7 +128,7 @@ jobs:
             };
 
             if (context.payload.repository.default_branch === context.ref) {
-              result.['image-tags'].append(`${imageName}:latest`);
+              result['image-tags'].append(`${imageName}:latest`);
             }
 
             // Print outputs to actions log for debugging
