@@ -64,18 +64,18 @@ jobs:
               // If the PR was closed and merged, then the event SHA will be that of the merge commit
               // (or squash commit) and the event base ref contains the name of the branch we merged into
               if (context.payload.action === "closed" && context.payload.pull_request.merged) {
-                imageTags.commit = "commit-" + context.sha;
-                imageTags.branchForTagging = "branch-" + context.payload.pull_request.base.ref;
-                imageTags.branchForCaching = "branch-" + context.payload.pull_request.head.ref;
+                imageTags.commit = context.sha;
+                imageTags.branchForTagging = context.payload.pull_request.base.ref;
+                imageTags.branchForCaching = context.payload.pull_request.head.ref;
               }
 
               // If the PR was opened, synchronized (from a push), or reopened,
               // then the event SHA will be that of the merge commit (or squash commit)
               // and the event base ref contains the name of the branch we merged into
               else if (["opened", "synchronize", "reopened"].includes(context.payload.action)) {
-                imageTags.commit = "commit-" + context.payload.pull_request.head.sha;
-                imageTags.branchForTagging = "branch-" + context.payload.pull_request.head.ref;
-                imageTags.branchForCaching = "branch-" + context.payload.pull_request.base.ref;
+                imageTags.commit = context.payload.pull_request.head.sha;
+                imageTags.branchForTagging = context.payload.pull_request.head.ref;
+                imageTags.branchForCaching = context.payload.pull_request.base.ref;
               }
 
               // Anything else, we didn't test, so error and don't output any tags
@@ -86,15 +86,25 @@ jobs:
 
             // Push events are easy, just grab the SHA and ref name from the github context
             else if (context.eventName === "push") {
-              imageTags.commit = "commit-" + context.sha;
-              imageTags.branchForTagging = "branch-" + context.ref;
-              imageTags.branchForCaching = "branch-" + context.ref;
+              imageTags.commit = context.sha;
+              imageTags.branchForTagging = context.ref;
+              imageTags.branchForCaching = context.ref;
             }
 
             // Anything else, we didn't test, so error and don't output any tags
             else {
               core.setFailed(`Unsupported event_name '${context.eventName}'`);
             }
+
+            // Remove any branch refs prefixes
+            for (const tagName in imageTags) {
+              imageTags[tagName]= imageTags[tagName].replace(/^refs\/heads\//g, '');
+            }
+
+            // Add tag prefixes
+            imageTags.commit = "commit-" + imageTags.commit;
+            imageTags.branchForTagging = "branch-" + imageTags.branchForTagging;
+            imageTags.branchForCaching = "branch-" + imageTags.branchForCaching;
 
             // Sanitize the tags of any illegal characters for Docker image tags
             for (const tagName in imageTags) {
