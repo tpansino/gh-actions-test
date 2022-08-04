@@ -57,7 +57,6 @@ jobs:
               "branchForTagging": "",
               "branchForCaching": "",
             };
-            /*
             // Pull requests events are tricky
             if (context.eventName === "pull_request") {
 
@@ -84,6 +83,7 @@ jobs:
               }
             }
 
+            /*
             // Push events are easy, just grab the SHA and ref name from the github context
             else if (context.eventName === "push") {
               imageTags.commit = "commit-" + context.sha;
