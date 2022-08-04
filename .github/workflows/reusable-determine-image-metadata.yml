@@ -57,7 +57,7 @@ jobs:
               "branchForTagging": "",
               "branchForCaching": "",
             };
-
+            /*
             // Pull requests events are tricky
             if (context.eventName === "pull_request") {
 
@@ -128,6 +128,7 @@ jobs:
               core.setOutput(outputName, result[outputName]);
             }
             core.endGroup()
+            */
 
       - name: Determine image labels
         id: determine-image-labels
