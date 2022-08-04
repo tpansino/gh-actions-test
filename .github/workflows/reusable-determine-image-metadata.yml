@@ -43,6 +43,8 @@ jobs:
       cache-image-tags: ${{ steps.determine-image-tags.outputs.cache-image-tags }}
       image-labels: ${{ steps.determine-image-labels.outputs.labels }}
     steps:
+      - name: My Action
+        uses: ./.github/actions/myaction/action.yml
       - name: Determine image tags
         id: determine-image-tags
         uses: actions/github-script@v6

@@ -1,0 +1,11 @@
+---
+name: My Action
+description: This is my action
+
+runs:
+  using: "composite"
+  steps:
+    - name: Echo
+      shell: bash
+      run: |
+        echo "Hello from inside the Action!"
