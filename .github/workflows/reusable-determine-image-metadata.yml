@@ -16,7 +16,7 @@ on:
         description: "The image tag determined by the Git commit SHA."
         value: ${{ jobs.determine-image-metadata.outputs.commit-image-tag }}
       image-tags:
-        description: "All determined image tags."
+        description: "All determined image tags to apply to the built image."
         value: ${{ jobs.determine-image-metadata.outputs.image-tags }}
       cache-image-tags:
         description: "All determined image tags to use for populating the build cache."
@@ -38,81 +38,100 @@ jobs:
     runs-on: ubuntu-20.04
     outputs:
       commit-image-tag: ${{ steps.determine-image-tags.outputs.commit-image-tag }}
-      branch-image-tag: ${{ steps.determine-image-tags.outputs.branch-image-tag-for-tagging }}
-      image-tags: |
-        ${{ steps.determine-image-tags.outputs.commit-image-tag }}
-        ${{ steps.determine-image-tags.outputs.branch-image-tag-for-tagging }}
-        ${{ steps.determine-image-tags.outputs.latest-image-tag }}
-      cache-image-tags: |
-        ${{ steps.determine-image-tags.outputs.commit-image-tag }}
-        ${{ steps.determine-image-tags.outputs.branch-image-tag-for-tagging }}
-        ${{ steps.determine-image-tags.outputs.branch-image-tag-for-caching }}
-        ${{ inputs.image }}:latest
+      branch-image-tag: ${{ steps.determine-image-tags.outputs.branch-image-tag }}
+      image-tags: ${{ steps.determine-image-tags.outputs.image-tags }}
+      cache-image-tags: ${{ steps.determine-image-tags.outputs.cache-image-tags }}
       image-labels: ${{ steps.determine-image-labels.outputs.labels }}
     steps:
       - name: Determine image tags
         id: determine-image-tags
-        run: |
-          github_event_name='${{ github.event_name }}'
-          github_event_action='${{ github.event.action }}'
-          pull_request_merged='${{ github.event.pull_request.merged }}'
-          pull_request_head_sha='${{ github.event.pull_request.head.sha }}'
-          image_name='${{ inputs.image }}'
-          repository_default_branch='${{ github.event.repository.default_branch }}'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const imageName = "${{ inputs.image }}";
 
-          commit_image_tag=""
-          branch_image_tag_for_tagging=""
-          branch_image_tag_for_caching=""
+            var imageTags = {
+              "commit": "",
+              "branchForTagging": "",
+              "branchForCaching": "",
+            };
 
-          # Pull requests events are tricky
-          if [[ "$github_event_name" == 'pull_request' ]]; then
+            # Pull requests events are tricky
+            if (context.eventName === "pull_request") {
 
-            # If the PR was closed and merged, then the event SHA will be that of the merge commit
-            # (or squash commit) and the event base ref contains the name of the branch we merged into
-            if [[ "$github_event_action" == 'closed' && "$pull_request_merged" == 'true' ]]; then
-              commit_image_tag="commit-$GITHUB_SHA"
-              branch_image_tag_for_tagging="branch-$GITHUB_BASE_REF"
-              branch_image_tag_for_caching="branch-$GITHUB_HEAD_REF"
+              # If the PR was closed and merged, then the event SHA will be that of the merge commit
+              # (or squash commit) and the event base ref contains the name of the branch we merged into
+              if (context.payload.action === "closed" && context.payload.pull_request.merged) {
+                imageTags.commit = "commit-" + context.sha;
+                imageTags.branchForTagging = "branch-" + context.payload.pull_request.base.ref;
+                imageTags.branchForCaching = "branch-" + context.payload.pull_request.head.ref;
+              }
 
-            # If the PR was opened, synchronized (from a push), or reopened,
-            # then the event SHA will be that of the merge commit (or squash commit)
-            # and the event base ref contains the name of the branch we merged into
-            elif [[ "$github_event_action" =~ ^(opened|synchronize|reopened)$ ]]; then
-              commit_image_tag="commit-$pull_request_head_sha"
-              branch_image_tag_for_tagging="branch-$GITHUB_HEAD_REF"
-              branch_image_tag_for_caching="branch-$GITHUB_BASE_REF"
+              # If the PR was opened, synchronized (from a push), or reopened,
+              # then the event SHA will be that of the merge commit (or squash commit)
+              # and the event base ref contains the name of the branch we merged into
+              else if (["opened", "synchronize", "reopened"].includes(context.payload.action)) {
+                imageTags.commit = "commit-" + context.payload.pull_request.head.sha;
+                imageTags.branchForTagging = "branch-" + context.payload.pull_request.head.ref;
+                imageTags.branchForCaching = "branch-" + context.payload.pull_request.base.ref;
+              }
+
+              # Anything else, we didn't test, so error and don't output any tags
+              else {
+                core.setFailed(`Unsupported pull_request event type '${context.payload.action}'`);
+              }
+            }
+
+            # Push events are easy, just grab the SHA and ref name from the github context
+            else if (context.eventName === "push") {
+              imageTags.commit = "commit-" + context.sha;
+              imageTags.branchForTagging = "branch-" + context.ref;
+              imageTags.branchForCaching = "branch-" + context.ref;
+            }
 
             # Anything else, we didn't test, so error and don't output any tags
-            else
-              echo "::error::Unsupported pull_request event type '$github_event_action'"
-            fi
+            else {
+              core.setFailed(`Unsupported event_name '${context.eventName}'`);
+            }
 
-          # Push events are easy, just grab the SHA and ref name from the github context
-          elif [[ "$github_event_name" == 'push' ]]; then
-            commit_image_tag="commit-$GITHUB_SHA"
-            branch_image_tag_for_tagging="branch-$GITHUB_REF_NAME"
-            branch_image_tag_for_caching="branch-$GITHUB_REF_NAME"
+            # Sanitize the tags of any illegal characters for Docker image tags
+            for (const tagName in imageTags) {
+              imageTags.tagName = imageTags.tagName.replace(/[^a-zA-Z0-9._-]+/g, '-');
+            }
 
-          # Anything else, we didn't test, so error and don't output any tags
-          else
-            echo "::error::Unsupported event_name '$github_event_name'"
-          fi
+            # Assemble the result object (filtering out any empty tags)
+            var result = {
+              "commit-image-tag": `${imageName}:${imageTags.commit}`,
+              "branch-image-tag": `${imageName}:${imageTags.branchForTagging}`,
+              "image-tags": [
+                `${imageName}:${imageTags.commit}`,
+                `${imageName}:${imageTags.branchForTagging}`,
+              ],
+              "cache-image-tags": [
+                `${imageName}:${imageTags.commit}`,
+                `${imageName}:${imageTags.branchForTagging}`,
+                `${imageName}:${imageTags.branchForCaching}`,
+                `${imageName}:latest`,
+              ],
+            };
 
-          # Sanitize the tags of any illegal characters for Docker image tags
-          commit_image_tag=$(echo "$commit_image_tag" | tr -c -s 'a-zA-Z0-9._-' '-')
-          branch_image_tag_for_tagging=$(echo "$branch_image_tag_for_tagging" | tr -c -s 'a-zA-Z0-9._-' '-')
-          branch_image_tag_for_caching=$(echo "$branch_image_tag_for_caching" | tr -c -s 'a-zA-Z0-9._-' '-')
+            if (context.payload.repository.default_branch === context.ref) {
+              result.imageTags.append(`${imageName}:latest`);
+            }
 
-          echo "::set-output name=commit-image-tag::$image_name:$commit_image_tag"
-          echo "::set-output name=branch-image-tag-for-tagging::$image_name:$branch_image_tag_for_tagging"
-          echo "::set-output name=branch-image-tag-for-caching::$image_name:$branch_image_tag_for_caching"
-
-          if [[ "$repository_default_branch" == "$GITHUB_REF_NAME" ]]; then
-            echo "::set-output name=latest-image-tag::$image_name:latest"
-          fi
+            # Print outputs to actions log for debugging
+            core.setGroup("Outputs")
+            for (const outputName in result) {
+              core.info(`${outputName}: ` + JSON.stringify(result.outputName, undefined, 2));
+              core.setOutput(outputName, result.outputName);
+            }
+            core.endGroup()
 
       - name: Determine image labels
         id: determine-image-labels
+        # We tried using this action to generate both labels AND tags, but it
+        # has missing/weird functionality on pull request events that make it not very useful
+        # for our Docker build caching pattern. So now we just use it for labels.
         uses: docker/metadata-action@v4
         with:
           images: |
