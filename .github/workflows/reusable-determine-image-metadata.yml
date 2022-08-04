@@ -97,7 +97,7 @@ jobs:
 
             // Sanitize the tags of any illegal characters for Docker image tags
             for (const tagName in imageTags) {
-              imageTags.tagName = imageTags.tagName.replace(/[^a-zA-Z0-9._-]+/g, '-');
+              imageTags[tagName]= imageTags[tagName]replace(/[^a-zA-Z0-9._-]+/g, '-');
             }
 
             // Assemble the result object (filtering out any empty tags)
@@ -123,8 +123,8 @@ jobs:
             // Print outputs to actions log for debugging
             core.setGroup("Outputs")
             for (const outputName in result) {
-              core.info(`${outputName}: ` + JSON.stringify(result.outputName, undefined, 2));
-              core.setOutput(outputName, result.outputName);
+              core.info(`${outputName}: ` + JSON.stringify(result[outputName], undefined, 2));
+              core.setOutput(outputName, result[outputName]);
             }
             core.endGroup()
 
