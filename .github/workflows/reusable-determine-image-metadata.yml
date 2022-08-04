@@ -100,6 +100,7 @@ jobs:
             for (const tagName in imageTags) {
               imageTags[tagName]= imageTags[tagName]replace(/[^a-zA-Z0-9._-]+/g, '-');
             }
+            */
 
             // Assemble the result object (filtering out any empty tags)
             var result = {
@@ -128,7 +129,6 @@ jobs:
               core.setOutput(outputName, result[outputName]);
             }
             core.endGroup()
-            */
 
       - name: Determine image labels
         id: determine-image-labels
