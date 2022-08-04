@@ -48,6 +48,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
+
             const imageName = "${{ inputs.image }}";
 
             var imageTags = {
@@ -56,50 +57,50 @@ jobs:
               "branchForCaching": "",
             };
 
-            # Pull requests events are tricky
+            // Pull requests events are tricky
             if (context.eventName === "pull_request") {
 
-              # If the PR was closed and merged, then the event SHA will be that of the merge commit
-              # (or squash commit) and the event base ref contains the name of the branch we merged into
+              // If the PR was closed and merged, then the event SHA will be that of the merge commit
+              // (or squash commit) and the event base ref contains the name of the branch we merged into
               if (context.payload.action === "closed" && context.payload.pull_request.merged) {
                 imageTags.commit = "commit-" + context.sha;
                 imageTags.branchForTagging = "branch-" + context.payload.pull_request.base.ref;
                 imageTags.branchForCaching = "branch-" + context.payload.pull_request.head.ref;
               }
 
-              # If the PR was opened, synchronized (from a push), or reopened,
-              # then the event SHA will be that of the merge commit (or squash commit)
-              # and the event base ref contains the name of the branch we merged into
+              // If the PR was opened, synchronized (from a push), or reopened,
+              // then the event SHA will be that of the merge commit (or squash commit)
+              // and the event base ref contains the name of the branch we merged into
               else if (["opened", "synchronize", "reopened"].includes(context.payload.action)) {
                 imageTags.commit = "commit-" + context.payload.pull_request.head.sha;
                 imageTags.branchForTagging = "branch-" + context.payload.pull_request.head.ref;
                 imageTags.branchForCaching = "branch-" + context.payload.pull_request.base.ref;
               }
 
-              # Anything else, we didn't test, so error and don't output any tags
+              // Anything else, we didn't test, so error and don't output any tags
               else {
                 core.setFailed(`Unsupported pull_request event type '${context.payload.action}'`);
               }
             }
 
-            # Push events are easy, just grab the SHA and ref name from the github context
+            // Push events are easy, just grab the SHA and ref name from the github context
             else if (context.eventName === "push") {
               imageTags.commit = "commit-" + context.sha;
               imageTags.branchForTagging = "branch-" + context.ref;
               imageTags.branchForCaching = "branch-" + context.ref;
             }
 
-            # Anything else, we didn't test, so error and don't output any tags
+            // Anything else, we didn't test, so error and don't output any tags
             else {
               core.setFailed(`Unsupported event_name '${context.eventName}'`);
             }
 
-            # Sanitize the tags of any illegal characters for Docker image tags
+            // Sanitize the tags of any illegal characters for Docker image tags
             for (const tagName in imageTags) {
               imageTags.tagName = imageTags.tagName.replace(/[^a-zA-Z0-9._-]+/g, '-');
             }
 
-            # Assemble the result object (filtering out any empty tags)
+            // Assemble the result object (filtering out any empty tags)
             var result = {
               "commit-image-tag": `${imageName}:${imageTags.commit}`,
               "branch-image-tag": `${imageName}:${imageTags.branchForTagging}`,
@@ -119,7 +120,7 @@ jobs:
               result.imageTags.append(`${imageName}:latest`);
             }
 
-            # Print outputs to actions log for debugging
+            // Print outputs to actions log for debugging
             core.setGroup("Outputs")
             for (const outputName in result) {
               core.info(`${outputName}: ` + JSON.stringify(result.outputName, undefined, 2));
