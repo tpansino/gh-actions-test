@@ -123,7 +123,7 @@ jobs:
             }
 
             // Print outputs to actions log for debugging
-            core.setGroup("Outputs")
+            core.startGroup("Outputs")
             for (const outputName in result) {
               core.info(`${outputName}: ` + JSON.stringify(result[outputName], undefined, 2));
               core.setOutput(outputName, result[outputName]);
