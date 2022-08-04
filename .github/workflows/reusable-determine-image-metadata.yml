@@ -57,6 +57,7 @@ jobs:
               "branchForTagging": "",
               "branchForCaching": "",
             };
+
             // Pull requests events are tricky
             if (context.eventName === "pull_request") {
 
@@ -95,12 +96,10 @@ jobs:
               core.setFailed(`Unsupported event_name '${context.eventName}'`);
             }
 
-            /*
             // Sanitize the tags of any illegal characters for Docker image tags
             for (const tagName in imageTags) {
-              imageTags[tagName]= imageTags[tagName]replace(/[^a-zA-Z0-9._-]+/g, '-');
+              imageTags[tagName]= imageTags[tagName].replace(/[^a-zA-Z0-9._-]+/g, '-');
             }
-            */
 
             // Assemble the result object (filtering out any empty tags)
             var result = {
