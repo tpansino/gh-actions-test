@@ -18,9 +18,9 @@ on:
       image-tags:
         description: "All determined image tags."
         value: ${{ jobs.determine-image-metadata.outputs.image-tags }}
-      cache-from-image-tags:
+      cache-image-tags:
         description: "All determined image tags to use for populating the build cache."
-        value: ${{ jobs.determine-image-metadata.outputs.cache-from-image-tags }}
+        value: ${{ jobs.determine-image-metadata.outputs.cache-image-tags }}
       image-labels:
         description: "All determined image labels."
         value: ${{ jobs.determine-image-metadata.outputs.image-labels }}
@@ -37,44 +37,83 @@ jobs:
     name: Determine Image Metadata
     runs-on: ubuntu-20.04
     outputs:
-      commit-image-tag: ${{ fromJSON(steps.determine-image-tags-labels.outputs.json).tags[0] }}
-      branch-image-tag: ${{ fromJSON(steps.determine-image-tags-labels.outputs.json).tags[1] }}
-      image-tags: ${{ steps.determine-image-tags-labels.outputs.tags }}
-      cache-from-image-tags: |
-        ${{ steps.determine-image-tags-labels.outputs.tags }}
-        ${{ steps.determine-cache-from-image-tags.outputs.tags }}
-      image-labels: ${{ steps.determine-image-tags-labels.outputs.labels }}
+      commit-image-tag: ${{ steps.determine-image-tags.outputs.commit-image-tag }}
+      branch-image-tag: ${{ steps.determine-image-tags.outputs.branch-image-tag-for-tagging }}
+      image-tags: |
+        ${{ steps.determine-image-tags.outputs.commit-image-tag }}
+        ${{ steps.determine-image-tags.outputs.branch-image-tag-for-tagging }}
+        ${{ steps.determine-image-tags.outputs.latest-image-tag }}
+      cache-image-tags: |
+        ${{ steps.determine-image-tags.outputs.commit-image-tag }}
+        ${{ steps.determine-image-tags.outputs.branch-image-tag-for-tagging }}
+        ${{ steps.determine-image-tags.outputs.branch-image-tag-for-caching }}
+        ${{ inputs.image }}:latest
+      image-labels: ${{ steps.determine-image-labels.outputs.labels }}
     steps:
-      - name: Determine image tags and labels
-        id: determine-image-tags-labels
-        uses: docker/metadata-action@v4
-        with:
-          images: |
-            ${{ inputs.image }}
-          # yamllint disable rule:line-length
-          tags: |
-            priority=9999,enable=${{ github.event_name != 'pull_request' }},prefix=commit-,type=sha,format=long
-            priority=9999,enable=${{ github.event_name == 'pull_request' && github.event.action != 'closed' }},prefix=commit-,type=raw,value=${{ github.event.pull_request.head.sha }}
-            priority=9999,enable=${{ github.event_name == 'pull_request' && github.event.action == 'closed' }},prefix=commit-,type=sha,format=long
-            priority=9900,enable=${{ github.event_name != 'pull_request' }},prefix=branch-,type=ref,event=branch
-            priority=9900,enable=${{ github.event_name == 'pull_request' && github.event.action != 'closed' }},prefix=branch-,type=raw,value=${{ github.event.pull_request.head.ref }}
-            priority=9900,enable=${{ github.event_name == 'pull_request' && github.event.action == 'closed' }},prefix=branch-,type=raw,value=${{ github.event.pull_request.base.ref }}
-            priority=9800,enable={{is_default_branch}},type=raw,value=latest
-          # yamllint enable rule:line-length
+      - name: Determine image tags
+        id: determine-image-tags
+        run: |
+          github_event_name='${{ github.event_name }}'
+          github_event_action='${{ github.event.action }}'
+          pull_request_merged='${{ github.event.pull_request.merged }}'
+          pull_request_head_sha='${{ github.event.pull_request.head.sha }}'
+          image_name='${{ inputs.image }}'
+          repository_default_branch='${{ github.event.repository.default_branch }}'
 
-      - name: Determine cache-from image tags
-        id: determine-cache-from-image-tags
+          commit_image_tag=""
+          branch_image_tag_for_tagging=""
+          branch_image_tag_for_caching=""
+
+          # Pull requests events are tricky
+          if [[ "$github_event_name" == 'pull_request' ]]; then
+
+            # If the PR was closed and merged, then the event SHA will be that of the merge commit
+            # (or squash commit) and the event base ref contains the name of the branch we merged into
+            if [[ "$github_event_action" == 'closed' && "$pull_request_merged" == 'true' ]]; then
+              commit_image_tag="commit-$GITHUB_SHA"
+              branch_image_tag_for_tagging="branch-$GITHUB_BASE_REF"
+              branch_image_tag_for_caching="branch-$GITHUB_HEAD_REF"
+
+            # If the PR was opened, synchronized (from a push), or reopened,
+            # then the event SHA will be that of the merge commit (or squash commit)
+            # and the event base ref contains the name of the branch we merged into
+            elif [[ "$github_event_action" =~ ^(opened|synchronize|reopened)$ ]]; then
+              commit_image_tag="commit-$pull_request_head_sha"
+              branch_image_tag_for_tagging="branch-$GITHUB_HEAD_REF"
+              branch_image_tag_for_caching="branch-$GITHUB_BASE_REF"
+
+            # Anything else, we didn't test, so error and don't output any tags
+            else
+              echo "::error::Unsupported pull_request event type '$github_event_action'"
+            fi
+
+          # Push events are easy, just grab the SHA and ref name from the github context
+          elif [[ "$github_event_name" == 'push' ]]; then
+            commit_image_tag="commit-$GITHUB_SHA"
+            branch_image_tag_for_tagging="branch-$GITHUB_REF_NAME"
+            branch_image_tag_for_caching="branch-$GITHUB_REF_NAME"
+
+          # Anything else, we didn't test, so error and don't output any tags
+          else
+            echo "::error::Unsupported event_name '$github_event_name'"
+          fi
+
+          # Sanitize the tags of any illegal characters for Docker image tags
+          commit_image_tag=$(echo "$commit_image_tag" | tr -c -s 'a-zA-Z0-9._-' '-')
+          branch_image_tag_for_tagging=$(echo "$branch_image_tag_for_tagging" | tr -c -s 'a-zA-Z0-9._-' '-')
+          branch_image_tag_for_caching=$(echo "$branch_image_tag_for_caching" | tr -c -s 'a-zA-Z0-9._-' '-')
+
+          echo "::set-output name=commit-image-tag::$image_name:$commit_image_tag"
+          echo "::set-output name=branch-image-tag-for-tagging::$image_name:$branch_image_tag_for_tagging"
+          echo "::set-output name=branch-image-tag-for-caching::$image_name:$branch_image_tag_for_caching"
+
+          if [[ "$repository_default_branch" == "$GITHUB_REF_NAME" ]]; then
+            echo "::set-output name=latest-image-tag::$image_name:latest"
+          fi
+
+      - name: Determine image labels
+        id: determine-image-labels
         uses: docker/metadata-action@v4
         with:
           images: |
             ${{ inputs.image }}
-          # yamllint disable rule:line-length
-          tags: |
-            priority=9999,enable=${{ github.event_name != 'pull_request' }},prefix=commit-,type=sha,format=long
-            priority=9999,enable=${{ github.event_name == 'pull_request' && github.event.action != 'closed' }},prefix=commit-,type=raw,value=${{ github.event.pull_request.head.sha }}
-            priority=9999,enable=${{ github.event_name == 'pull_request' && github.event.action == 'closed' }},prefix=commit-,type=sha,format=long
-            priority=9900,enable=${{ github.event_name != 'pull_request' }},prefix=branch-,type=ref,event=branch
-            priority=9900,enable=${{ github.event_name == 'pull_request' }},prefix=branch-,type=raw,value=${{ github.event.pull_request.head.ref }}
-            priority=9900,enable=${{ github.event_name == 'pull_request' }},prefix=branch-,type=raw,value=${{ github.event.pull_request.base.ref }}
-            priority=9800,type=raw,value=latest
-          # yamllint enable rule:line-length
