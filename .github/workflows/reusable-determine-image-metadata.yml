@@ -44,7 +44,7 @@ jobs:
       image-labels: ${{ steps.determine-image-labels.outputs.labels }}
     steps:
       - name: My Action
-        uses: tpansino/gh-actions-test/.github/actions/myaction/action.yml@main
+        uses: tpansino/gh-actions-test/.github/actions/myaction@main
       - name: Determine image tags
         id: determine-image-tags
         uses: actions/github-script@v6
